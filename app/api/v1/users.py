@@ -15,13 +15,13 @@ async def read_user(user_id: int, db: Session = Depends(get_db)):
     
 @router.get("/", response_model= list[UserRead])
 async def read_users(db: Session = Depends(get_db)):
-    users = db.query(User).all()
+    user_service = UserService(db)
+    users = user_service.list_users()
     return users
 
 
 @router.post("/", response_model=UserRead)
 async def create_user(user: UserCreate, db: Session = Depends(get_db)):
     user_service = UserService(db)
-
     user_db = user_service.create_user(user)
     return user_db
