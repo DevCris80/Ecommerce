@@ -18,10 +18,11 @@ class Product(Base):
     __tablename__ = "products"
 
     id: int = Column(Integer, primary_key=True, index=True)
-    sku: int = Column(Integer, unique=True, nullable=False)
+    sku: str = Column(String, unique=True, nullable=False, index=True)
     name: str = Column(String, index=True, nullable=False)
     description: str = Column(String, nullable=True)
     price: float = Column(Float, nullable=False)
+    created_at: DateTime = Column(DateTime(timezone=True), server_default=func.now())
 
     orders = relationship("Order", back_populates="product")
 

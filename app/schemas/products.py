@@ -1,14 +1,13 @@
 from typing import Optional
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 
 class ProductBase(BaseModel):
-    email: EmailStr
-    full_name: Optional[str] = None
-
+    name: str
+    description: Optional[str] = None
+    price: float
 
 class ProductCreate(ProductBase):
-    password: str
-    role: str = "customer"
+    sku: str
     
 
 class ProductRead(ProductBase):
