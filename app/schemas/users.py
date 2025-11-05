@@ -16,4 +16,4 @@ class UserRead(UserBase):
     created_at: Optional[str] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
