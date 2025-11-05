@@ -24,7 +24,7 @@ class Product(Base):
     price: float = Column(Float, nullable=False)
     created_at: DateTime = Column(DateTime(timezone=True), server_default=func.now())
 
-    orders = relationship("Order", back_populates="product")
+    order_items = relationship("OrderItem", back_populates="product")
 
 
 class Order(Base):
