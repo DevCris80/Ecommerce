@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.db.models import User
@@ -6,10 +6,7 @@ from app.schemas.users import UserCreate, UserRead
 from app.db.session import get_db
 from app.services.user_logic import UserService
 
-router = APIRouter(
-    prefix="/users",
-   tags=["users"]
-)
+router = APIRouter()
 
 @router.get("/{user_id}", response_model=UserRead)
 async def read_user(user_id: int, db: Session = Depends(get_db)):
