@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.schemas.orders import OrderCreate, OrderRead
-from app.services.order_logic import OrderService
+from app.services.orders_logic import OrderService
 
 router = APIRouter()
 
