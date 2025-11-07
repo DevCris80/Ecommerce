@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.schemas.products import ProductCreate, ProductRead
-from app.db.models import Product
 from app.services.product_logic import ProductService
 
 router = APIRouter()
