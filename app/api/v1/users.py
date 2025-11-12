@@ -24,3 +24,9 @@ async def create_user(user: UserCreate, db: Session = Depends(get_db)):
     user_service = UserService(db)
     user_db = user_service.create_user(user)
     return user_db
+
+@router.delete("/{user_id}")
+async def delete_user(user_id: int, db: Session = Depends(get_db)):
+    user_service = UserService(db)
+    user_service.delete_user(user_id)
+    return {"detail": "User deleted successfully"}
