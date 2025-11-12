@@ -1,5 +1,6 @@
 from typing import Optional
 from pydantic import BaseModel
+from datetime import datetime
 
 class OrderBase(BaseModel):
     total_amount: float
@@ -10,7 +11,7 @@ class OrderCreate(OrderBase):
 
 class OrderRead(OrderBase):
     id: int
-    created_at: Optional[str] = None
+    created_at: datetime = None
 
     class Config:
         from_attributes = True

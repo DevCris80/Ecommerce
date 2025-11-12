@@ -1,5 +1,6 @@
 from typing import Optional
 from pydantic import BaseModel
+from datetime import datetime
 
 class ProductBase(BaseModel):
     sku: str
@@ -12,7 +13,7 @@ class ProductCreate(ProductBase):
 
 class ProductRead(ProductBase):
     id: int
-    created_at: Optional[str] = None
+    created_at: datetime = None
 
     class Config:
         from_attributes = True
