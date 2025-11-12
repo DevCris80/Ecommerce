@@ -12,7 +12,7 @@ class ProductCreate(ProductBase):
     pass    
 
 class ProductRead(ProductBase):
-    id: int
+    product_id: int
     created_at: datetime = None
 
     class Config:
