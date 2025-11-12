@@ -42,3 +42,10 @@ class UserService:
         if not user or not verify_password(password, user.hashed_password):
             return None
         return user
+    
+    def delete_user(self, user_id: int):
+        user = self.get_user_by_id(user_id)
+        if not user:
+            raise HTTPException(status_code=400, detail="User not found")
+        self.db.delete(user)
+        self.db.commit()
