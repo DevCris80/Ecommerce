@@ -1,6 +1,5 @@
 from sqlalchemy import ForeignKey, func
-from sqlalchemy.orm import relationship
-from typing import Mapped, mapped_column
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 from datetime import datetime
 
 from app.db.base import Base
@@ -45,7 +44,7 @@ class OrderItem(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     quantity: Mapped[int] = mapped_column(nullable=False)
-    
+
     order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"), nullable=False)
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=False)
     
