@@ -1,8 +1,15 @@
 from sqlalchemy import ForeignKey, func, UniqueConstraint
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from datetime import datetime
+from enum import StrEnum
 
 from app.db.base import Base
+
+class OrderStatus(StrEnum):
+    PENDING = "pending"
+    SHIPPED = "shipped"
+    DELIVERED = "delivered"
+    CANCELED = "canceled"
 
 class User(Base):
     __tablename__ = "users"
