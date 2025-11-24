@@ -42,6 +42,7 @@ class Order(Base):
     order_id: Mapped[int] = mapped_column(primary_key=True, index=True)
     total_amount: Mapped[float] = mapped_column(nullable=False, default=0.0)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    status: Mapped[OrderStatus] = mapped_column(nullable=False, default=OrderStatus.PENDING)
     
     user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=False)
     user: Mapped["User"] = relationship("User", back_populates="orders", foreign_keys=[user_id])
@@ -54,6 +55,8 @@ class OrderItem(Base):
 
     order_item_id: Mapped[int] = mapped_column(primary_key=True, index=True)
     quantity: Mapped[int] = mapped_column(nullable=False)
+    price_per_unit: Mapped[float] = mapped_column(nullable=False)
+    discount: Mapped[float] = mapped_column(nullable=True, default=0.0)
 
     order_id: Mapped[int] = mapped_column(ForeignKey("orders.order_id"), nullable=False)
     product_id: Mapped[int] = mapped_column(ForeignKey("products.product_id"), nullable=False)
