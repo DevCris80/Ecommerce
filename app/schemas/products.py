@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 
 class ProductBase(BaseModel):
@@ -7,6 +7,7 @@ class ProductBase(BaseModel):
     name: str
     description: Optional[str] = None
     price: float
+    stock_quantity: int
 
 class ProductCreate(ProductBase):
     pass    
@@ -15,5 +16,4 @@ class ProductRead(ProductBase):
     product_id: int
     created_at: datetime = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes = True)
