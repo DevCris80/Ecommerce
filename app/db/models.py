@@ -30,6 +30,7 @@ class Product(Base):
     name: Mapped[str] = mapped_column(index=True, nullable=False)
     description: Mapped[str] = mapped_column(nullable=True)
     price: Mapped[float] = mapped_column(nullable=False)
+    stock_quantity: Mapped[int] = mapped_column(nullable=False, default=0)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
     order_items: Mapped[list["OrderItem"]] = relationship("OrderItem", back_populates="product")
