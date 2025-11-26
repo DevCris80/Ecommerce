@@ -5,7 +5,7 @@ Script de orquestación para Docker y Alembic en Windows.
 
 param (
     [Parameter(Mandatory=$true)]
-    [ValidateSet("start", "stop", "clean", "migration", "shell")]
+    [ValidateSet("start", "stop", "clean", "migration", "update", "shell")]
     [string]$action,
 
     [string]$m = "cambio_sin_nombre"
@@ -40,9 +40,19 @@ switch ($action) {
         docker-compose exec web uv run alembic revision --autogenerate -m "$m"
         Write-Host "[EXITO] Archivo de migración creado en /alembic/versions/" -ForegroundColor Green
     }
+
+    "update" {
+        Write-Host "[ACTUALIZACION] Aplicando migraciones pendientes..." -ForegroundColor Cyan
+        docker-compose exec web uv run alembic upgrade head
+        Write-Host "[EXITO] Migraciones aplicadas." -ForegroundColor Green
+    }
     
     "shell" {
         Write-Host "[TERMINAL] Entrando al contenedor..." -ForegroundColor Cyan
         docker-compose exec web /bin/bash
+    }
+
+    default {
+        Write-Host "[ERROR] Acción desconocida: $action" -ForegroundColor Red
     }
 }
