@@ -1,32 +1,40 @@
 from fastapi import HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 from app.schemas.products import ProductCreate
 from app.db.models import Product
 
 class ProductService:
-    def __init__(self, db: Session):
+    def __init__(self, db: AsyncSession):
         self.db = db
 
-    def create_product(self, product_create: ProductCreate) -> Product:
-        if self.db.query(Product).filter(Product.sku == product_create.sku).first():
-            raise HTTPException(status_code=400, detail="SKU must be unique")
-
-        # Create and save the product model_dump is used to convert Pydantic model to dict
-        product = Product(**product_create.model_dump())
-        self.db.add(product)
-        self.db.commit()
-        self.db.refresh(product)
-        return product
+    async def create_product(self, product_create: ProductCreate) -> Product:
+        try:
+            new_product = Product(**product_create.model_dump())
+            self.db.add(new_product)
+            await self.db.commit()
+            await self.db.refresh(new_product)
+            return new_product
+        except IntegrityError:
+            await self.db.rollback()
+            raise HTTPException(status_code=400, detail="Product with this SKU already exists")
     
-    def get_product_by_id(self, product_id: int) -> Product | None:
-        product = self.db.query(Product).filter(Product.id == product_id).first()
+    async def get_product_by_id(self, product_id: int) -> Product | None:
+        product = await self.db.execute(select(Product).where(Product.id == product_id))
+        product = product.scalars().first()
         if not product:
             raise HTTPException(status_code=400, detail="Product not found")
         return product
 
-    def get_product_by_sku(self, sku: str) -> Product | None:
-        return self.db.query(Product).filter(Product.sku == sku).first()
+    async def get_product_by_sku(self, sku: str) -> Product | None:
+        product = await self.db.execute(select(Product).where(Product.sku == sku))
+        product = product.scalars().first()
+        if not product:
+            raise HTTPException(status_code=400, detail="Product not found")
+        return product
     
-    def list_products(self) -> list[Product]:
-        return self.db.query(Product).all()
+    async def list_products(self) -> list[Product]:
+        result = await self.db.execute(select(Product))
+        return result.scalars().all()

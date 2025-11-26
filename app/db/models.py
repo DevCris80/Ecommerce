@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, func, UniqueConstraint
+from sqlalchemy import ForeignKey, func, UniqueConstraint, Enum
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from datetime import datetime
 from enum import StrEnum
@@ -42,10 +42,14 @@ class Order(Base):
     order_id: Mapped[int] = mapped_column(primary_key=True, index=True)
     total_amount: Mapped[float] = mapped_column(nullable=False, default=0.0)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
-    status: Mapped[OrderStatus] = mapped_column(nullable=False, default=OrderStatus.PENDING)
+    status: Mapped[OrderStatus] = mapped_column(
+        Enum(OrderStatus), 
+        nullable=False, 
+        default=OrderStatus.PENDING
+    )
     
     user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=False)
-    user: Mapped["User"] = relationship("User", back_populates="orders", foreign_keys=[user_id])
+    user: Mapped["User"] = relationship("User", back_populates="orders")
 
     items: Mapped[list["OrderItem"]] = relationship("OrderItem", back_populates="order")
 
