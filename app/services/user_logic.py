@@ -61,5 +61,5 @@ class UserService:
     
     async def delete_user(self, user_id: int):
         user = await self.get_user_by_id(user_id)
-        await self.db.delete(user)
+        self.db.delete(user)
         await self.db.commit()
