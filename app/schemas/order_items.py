@@ -3,19 +3,20 @@ from pydantic import BaseModel, ConfigDict
 from app.schemas.orders import OrderRead
 from app.schemas.products import ProductRead
 
-class OrderItemBase(BaseModel):
+class OrderItemCreate(BaseModel):
     quantity: int
     price_per_unit: float
     discount: float | None = 0.0
     order_id: int
     product_id: int
 
-class OrderItemCreate(OrderItemBase):
-    pass
-
-
-class OrderItemRead(OrderItemBase):
+class OrderItemRead(BaseModel):
     order_item_id: int
+    quantity: int
+    price_per_unit: float
+    discount: float | None = 0.0
+    order_id: int
+    product_id: int
     
     model_config = ConfigDict(from_attributes = True)
 
