@@ -5,7 +5,7 @@ from sqlalchemy import select
 import asyncio
 
 from app.db.models import User
-from app.schemas.users import UserCreate
+from app.schemas.users import UserCreate, UserUpdate, UserPasswordUpdate
 from app.core.security import get_password_hash, verify_password
 
 class UserService:
@@ -59,6 +59,34 @@ class UserService:
             return None
         return user
     
+    async def update_user(self, user_id: int, user_update: UserUpdate) -> User:
+        user = await self.get_user_by_id(user_id)
+        
+        if user_update.full_name is not None:
+            user.full_name = user_update.full_name
+        if user_update.email is not None:
+            existing_user = await self.get_user_by_email(user_update.email)
+            if existing_user and existing_user.user_id != user_id:
+                raise HTTPException(status_code=400, detail="Email already registered")
+            user.email = user_update.email
+            
+        await self.db.commit()
+        await self.db.refresh(user)
+        return user
+
+    async def update_password(self, user_id: int, password_update: UserPasswordUpdate) -> User:
+        user = await self.get_user_by_id(user_id)
+        
+        if not verify_password(password_update.current_password, user.hashed_password):
+             raise HTTPException(status_code=400, detail="Incorrect password")
+        
+        hashed_password = get_password_hash(password_update.new_password)
+        user.hashed_password = hashed_password
+        
+        await self.db.commit()
+        await self.db.refresh(user)
+        return user
+
     async def delete_user(self, user_id: int):
         user = await self.get_user_by_id(user_id)
         self.db.delete(user)
