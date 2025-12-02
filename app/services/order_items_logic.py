@@ -1,6 +1,5 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import HTTPException
 
 from app.db.models import OrderItem
 from app.schemas.order_items import OrderItemCreate
@@ -14,8 +13,7 @@ class OrderItemService:
             select(OrderItem).where(OrderItem.id == item_id)
         )
         result = result.scalars().first()
-        if not result:
-            raise HTTPException(status_code=404, detail="Order item not found")
+
         return result
     
     async def list_order_items(self) -> list[OrderItem]:
