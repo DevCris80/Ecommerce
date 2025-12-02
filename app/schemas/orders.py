@@ -10,7 +10,7 @@ class OrderCreate(OrderBase):
     pass
 
 class OrderRead(OrderBase):
-    id: int
+    order_id: int
     created_at: datetime = None
 
     model_config = ConfigDict(from_attributes = True)

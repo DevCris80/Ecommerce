@@ -2,6 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Order
+from app.schemas.orders import OrderCreate
 
 
 class OrderService:
@@ -16,8 +17,12 @@ class OrderService:
         result = await self.db.execute(select(Order).where(Order.order_id == order_id))
         return result.scalars().first()
 
-    async def create_order(self, order_data) -> Order:
-        new_order = Order(**order_data.model_dump())
+    async def create_order(self, order_data: OrderCreate) -> Order:
+        new_order = Order(
+            total_amount=order_data.total_amount,
+            status=order_data.status,
+            user_id=order_data.user_id
+        )
         self.db.add(new_order)
         await self.db.commit()
         await self.db.refresh(new_order)

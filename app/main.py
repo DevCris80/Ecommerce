@@ -11,4 +11,4 @@ app.include_router(orders_router, prefix="/api/v1/orders", tags=["orders"])
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to the E-commerce API"}
+    return {"message": "Welcome to the DevCris80's E-commerce API"}
