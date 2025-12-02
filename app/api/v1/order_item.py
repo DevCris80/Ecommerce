@@ -12,3 +12,10 @@ async def read_order_item(order_item_id: int, order_item_service: OrderItemServi
     if not order_item:
         raise HTTPException(status_code=404, detail="Order item not found")
     return order_item
+
+@router.get("/", response_model = list[OrderItemRead])
+async def read_orders_item(order_item_service: OrderItemService = Depends(get_order_item_service)):
+    orders_item = await order_item_service.list_order_items()
+    if not orders_item:
+        raise HTTPException(status_code=404, detail="Orders item is empty")
+    return orders_item   
