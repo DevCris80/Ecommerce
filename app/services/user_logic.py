@@ -46,6 +46,8 @@ class UserService:
         except IntegrityError:
             await self.db.rollback()
             raise HTTPException(status_code=400, detail="Email already registered")
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
     
     async def authenticate_user(self, email: str, password: str) -> User | None:
         user = await self.get_user_by_email(email)
