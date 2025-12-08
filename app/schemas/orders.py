@@ -11,6 +11,6 @@ class OrderRead(BaseModel):
     status: str
     total_amount: float
     user_id: int
-    created_at: datetime = None
+    created_at: datetime
 
     model_config = ConfigDict(from_attributes = True)

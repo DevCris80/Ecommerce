@@ -16,7 +16,7 @@ class UserService:
         query = await self.db.execute(select(User))
         return query.scalars().all()
 
-    async def get_user_by_id(self, user_id: int) -> User | None:
+    async def get_user_by_id(self, user_id: int) -> User:
         result = await self.db.execute(select(User).filter(User.user_id == user_id))
         user = result.scalars().first()
         if not user:

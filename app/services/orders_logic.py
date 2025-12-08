@@ -9,11 +9,11 @@ class OrderService:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def list_orders(self):
+    async def list_orders(self) -> list[Order] | None:
         result = await self.db.execute(select(Order))
         return result.scalars().all()
 
-    async def get_order_by_id(self, order_id: int) -> Order:
+    async def get_order_by_id(self, order_id: int) -> Order | None:
         result = await self.db.execute(select(Order).where(Order.order_id == order_id))
         return result.scalars().first()
 
@@ -29,6 +29,6 @@ class OrderService:
         return new_order
     
     async def delete_order(self, order_id: int) -> None:
-        order = self.get_order_by_id(order_id)
+        order = await self.get_order_by_id(order_id)
         self.db.delete(order)
         await self.db.commit()

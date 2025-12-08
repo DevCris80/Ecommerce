@@ -12,9 +12,7 @@ class OrderItemService:
         result = await self.db.execute(
             select(OrderItem).where(OrderItem.id == item_id)
         )
-        result = result.scalars().first()
-
-        return result
+        return result.scalars().first()
     
     async def list_order_items(self) -> list[OrderItem]:
         order_items = await self.db.execute(select(OrderItem))
