@@ -6,6 +6,8 @@ from app.api.v1.deps import get_user_service
 
 router = APIRouter()
 
+
+
 @router.get("/{user_id}", response_model=UserRead)
 async def read_user(user_id: int, user_service: UserService = Depends(get_user_service)):
     return await user_service.get_user_by_id(user_id)

@@ -6,6 +6,10 @@ from app.services.user_logic import UserService
 from app.services.product_logic import ProductService
 from app.services.orders_logic import OrderService
 from app.services.order_items_logic import OrderItemService
+from app.db.models import User
+
+async def get_current_user(db: AsyncSession = Depends(get_db)) -> User:
+    return await get_user_service(db).get_current_user()
 
 async def get_user_service(db: AsyncSession = Depends(get_db)) -> UserService:
     return UserService(db)
