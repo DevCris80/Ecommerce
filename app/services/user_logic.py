@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 import asyncio
 import jwt
+from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 
 from app.db.models import User
 from app.schemas.users import UserCreate, UserUpdate, UserPasswordUpdate
@@ -16,22 +17,24 @@ class UserService:
 
     async def get_current_user(self, token: str) -> User:
         try:
-            payload = jwt.decode(token, settings.SECRET_KEY, settings.ALGORITHM)
-            user_id = payload["sub"]
+            payload = jwt.decode(
+                token, 
+                settings.SECRET_KEY, 
+                algorithms=[settings.ALGORITHM]    
+            )
 
-            if not user_id:
-                raise HTTPException(status_code=401, detail="Invalid token")
-            
-            user = await self.get_user_by_id(user_id)
-
-            if not user:
-                raise HTTPException(status_code=401, detail="User not found")
-            return user
-
-        except jwt.ExpiredSignatureError:
-            raise HTTPException(status_code=401, detail="Token expired")
-        except jwt.InvalidTokenError:
-            raise HTTPException(status_code=401, detail="Invalid token")
+        except (ExpiredSignatureError, InvalidTokenError):
+            raise HTTPException(status_code=401, detail="Could not validate credentials")
+        
+        user_id: int = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Could not validate credentials")
+        
+        user = await self.get_user_by_id(user_id)
+        if not user:
+            raise HTTPException(status_code=401, detail="User not found")
+        
+        return user
         
     async def list_users(self) -> list[User]:
         query = await self.db.execute(select(User))
@@ -100,10 +103,12 @@ class UserService:
     async def update_password(self, user_id: int, password_update: UserPasswordUpdate) -> User:
         user = await self.get_user_by_id(user_id)
         
-        if not verify_password(password_update.current_password, user.hashed_password):
+        is_valid = await asyncio.to_thread(verify_password, password_update.current_password, user.hashed_password)
+
+        if not is_valid:
              raise HTTPException(status_code=400, detail="Incorrect password")
         
-        hashed_password = get_password_hash(password_update.new_password)
+        hashed_password = await asyncio.to_thread(get_password_hash, password_update.new_password)
         user.hashed_password = hashed_password
         
         await self.db.commit()
