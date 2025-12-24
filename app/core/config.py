@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     POSTGRES_HOST: str
     POSTGRES_PORT: int
     SECRET_KEY: str
+    ALGORITHM: str = "HS256"
 
     class Config:
         env_file = ".env"
