@@ -1,8 +1,3 @@
-<#
-.SYNOPSIS
-Script de orquestación para Docker y Alembic en Windows.
-#>
-
 param (
     [Parameter(Mandatory=$true)]
     [ValidateSet("start", "stop", "clean", "migration", "update", "shell")]
