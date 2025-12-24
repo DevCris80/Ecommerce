@@ -8,6 +8,7 @@ import jwt
 from app.db.models import User
 from app.schemas.users import UserCreate, UserUpdate, UserPasswordUpdate
 from app.core.security import get_password_hash, verify_password
+from app.core.config import settings
 
 class UserService:
     def __init__(self, db: AsyncSession):
@@ -16,13 +17,22 @@ class UserService:
     async def get_current_user(self, token: str) -> User:
         try:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-            user_id = payload["user_id"]
-            return await self.get_user_by_id(user_id)
+            user_id = payload["sub"]
+
+            if not user_id:
+                raise HTTPException(status_code=401, detail="Invalid token")
+            
+            user = await self.get_user_by_id(user_id)
+
+            if not user:
+                raise HTTPException(status_code=401, detail="User not found")
+            return user
+
         except jwt.ExpiredSignatureError:
             raise HTTPException(status_code=401, detail="Token expired")
         except jwt.InvalidTokenError:
             raise HTTPException(status_code=401, detail="Invalid token")
-
+        
     async def list_users(self) -> list[User]:
         query = await self.db.execute(select(User))
         return query.scalars().all()
