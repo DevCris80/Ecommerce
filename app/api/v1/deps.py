@@ -1,4 +1,5 @@
 from fastapi import Depends
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
@@ -8,8 +9,14 @@ from app.services.orders_logic import OrderService
 from app.services.order_items_logic import OrderItemService
 from app.db.models import User
 
-async def get_current_user(db: AsyncSession = Depends(get_db)) -> User:
-    return await get_user_service(db).get_current_user()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login")
+
+async def get_current_user(
+    token: str = Depends(oauth2_scheme),
+    db: AsyncSession = Depends(get_db)
+) -> User:
+    service = get_user_service(db)
+    return await service.get_current_user(token)
 
 async def get_user_service(db: AsyncSession = Depends(get_db)) -> UserService:
     return UserService(db)
