@@ -16,7 +16,7 @@ class UserService:
 
     async def get_current_user(self, token: str) -> User:
         try:
-            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+            payload = jwt.decode(token, settings.SECRET_KEY, settings.ALGORITHM)
             user_id = payload["sub"]
 
             if not user_id:
