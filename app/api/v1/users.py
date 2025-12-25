@@ -2,13 +2,14 @@ from fastapi import APIRouter, Depends
 
 from app.schemas.users import UserCreate, UserRead, UserUpdate, UserPasswordUpdate
 from app.services.user_logic import UserService
-from app.api.v1.deps import get_user_service
+from app.api.v1.deps import get_user_service, RoleChecker, CurrentUser
+from app.schemas.enums import UserRole
 
 router = APIRouter()
 
+admin_role_checker = RoleChecker(allowed_roles=[UserRole.ADMIN])
 
-
-@router.get("/{user_id}", response_model=UserRead)
+@router.get("/{user_id}", response_model=UserRead, dependencies=[Depends(admin_role_checker)])
 async def read_user(user_id: int, user_service: UserService = Depends(get_user_service)):
     return await user_service.get_user_by_id(user_id)
 
@@ -39,3 +40,16 @@ async def update_password(user_id: int, password_update: UserPasswordUpdate, use
 async def delete_user(user_id: int, user_service: UserService = Depends(get_user_service)):
     await user_service.delete_user(user_id)
     return {"detail": f"User {user_id} deleted successfully"}
+
+@router.get("/me", response_model=UserRead)
+async def read_current_user(current_user: CurrentUser):
+    return current_user
+
+@router.patch("/me", response_model=UserRead)
+async def update_current_user(
+    user_update: UserUpdate,
+    current_user: CurrentUser,
+    user_service: UserService = Depends(get_user_service)
+):
+    return await user_service.update_user(current_user.user_id, user_update)
+    
