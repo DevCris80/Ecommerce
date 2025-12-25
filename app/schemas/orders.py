@@ -1,8 +1,9 @@
 from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 
+from app.schemas.enums import OrderStatus
 class OrderCreate(BaseModel):
-    status: str
+    status: OrderStatus
     total_amount: float
     user_id: int
 

@@ -2,11 +2,13 @@ from typing import Optional
 from pydantic import BaseModel, EmailStr, ConfigDict
 from datetime import datetime
 
+from app.schemas.enums import UserRole
+
 class UserCreate(BaseModel):
     email: EmailStr
     full_name: Optional[str]
     password: str
-    role: str = "customer"
+    role: UserRole = UserRole.CUSTOMER
 
 class UserUpdate(BaseModel):
     full_name: Optional[str]
