@@ -26,7 +26,7 @@ class UserService:
         except (ExpiredSignatureError, InvalidTokenError):
             raise HTTPException(status_code=401, detail="Could not validate credentials")
         
-        user_id: int = payload.get("sub")
+        user_id: int = int(payload.get("sub"))
         if user_id is None:
             raise HTTPException(status_code=401, detail="Could not validate credentials")
         
