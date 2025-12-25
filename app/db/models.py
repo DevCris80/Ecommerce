@@ -1,15 +1,10 @@
 from sqlalchemy import ForeignKey, func, UniqueConstraint, Enum
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from datetime import datetime
-from enum import StrEnum
 
 from app.db.base import Base
+from app.schemas.enums import UserRole, OrderStatus
 
-class OrderStatus(StrEnum):
-    PENDING = "pending"
-    SHIPPED = "shipped"
-    DELIVERED = "delivered"
-    CANCELED = "canceled"
 
 class User(Base):
     __tablename__ = "users"
@@ -18,7 +13,7 @@ class User(Base):
     email: Mapped[str] = mapped_column(unique=True, nullable=False)
     hashed_password: Mapped[str] = mapped_column(nullable=False)
     full_name: Mapped[str] = mapped_column(nullable=True)
-    role: Mapped[str] = mapped_column(default="customer", nullable=False)
+    role: Mapped[UserRole] = mapped_column(default=UserRole.CUSTOMER, nullable=False)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     orders: Mapped[list["Order"]] = relationship("Order", back_populates="user")
 
