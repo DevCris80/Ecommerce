@@ -4,10 +4,39 @@ from app.schemas.users import UserCreate, UserRead, UserUpdate, UserPasswordUpda
 from app.services.user_logic import UserService
 from app.api.v1.deps import get_user_service, RoleChecker, CurrentUser
 from app.schemas.enums import UserRole
+from app.schemas.auth import Message
 
 router = APIRouter()
 
 admin_role_checker = RoleChecker(allowed_roles=[UserRole.ADMIN])
+
+@router.get("/me", response_model=UserRead)
+async def read_current_user(current_user: CurrentUser):
+    return current_user
+
+@router.patch("/me", response_model=UserRead)
+async def update_current_user(
+    user_update: UserUpdate,
+    current_user: CurrentUser,
+    user_service: UserService = Depends(get_user_service)
+):
+    return await user_service.update_user(current_user.user_id, user_update)
+
+@router.patch("/me/password", response_model=UserRead)
+async def update_current_user_password(
+    password_update: UserPasswordUpdate,
+    current_user: CurrentUser,
+    user_service: UserService = Depends(get_user_service)
+):
+    return await user_service.update_password(current_user.user_id, password_update)
+
+@router.delete("/me", response_model= Message)
+async def delete_current_user(
+    current_user: CurrentUser,
+    user_service: UserService = Depends(get_user_service)
+):
+    await user_service.delete_user(current_user.user_id)
+    return Message(message=f"User {current_user.user_id} deleted successfully")
 
 @router.get("/{user_id}", response_model=UserRead, dependencies=[Depends(admin_role_checker)])
 async def read_user(user_id: int, user_service: UserService = Depends(get_user_service)):
@@ -36,20 +65,8 @@ async def update_password(user_id: int, password_update: UserPasswordUpdate, use
     return await user_service.update_password(user_id, password_update)
 
 
-@router.delete("/{user_id}")
+@router.delete("/{user_id}", dependencies=[Depends(admin_role_checker)], response_model=Message)
 async def delete_user(user_id: int, user_service: UserService = Depends(get_user_service)):
     await user_service.delete_user(user_id)
-    return {"detail": f"User {user_id} deleted successfully"}
-
-@router.get("/me", response_model=UserRead)
-async def read_current_user(current_user: CurrentUser):
-    return current_user
-
-@router.patch("/me", response_model=UserRead)
-async def update_current_user(
-    user_update: UserUpdate,
-    current_user: CurrentUser,
-    user_service: UserService = Depends(get_user_service)
-):
-    return await user_service.update_user(current_user.user_id, user_update)
+    return Message(message=f"User {user_id} deleted successfully")
     
