@@ -10,6 +10,7 @@ from app.db.models import User
 from app.schemas.users import UserCreate, UserUpdate, UserPasswordUpdate
 from app.core.security import get_password_hash, verify_password
 from app.core.config import settings
+from app.schemas.enums import UserRole
 
 class UserService:
     def __init__(self, db: AsyncSession):
@@ -117,5 +118,7 @@ class UserService:
 
     async def delete_user(self, user_id: int):
         user = await self.get_user_by_id(user_id)
-        self.db.delete(user)
+        if user.role == UserRole.ADMIN:
+            raise HTTPException(status_code=403, detail="Admin users cannot be deleted")
+        await self.db.delete(user)
         await self.db.commit()
