@@ -4,7 +4,7 @@ from typing import Any
 
 from app.core.config import settings
 
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 SECRET_KEY = settings.SECRET_KEY
 
 def create_access_token(subject: str | Any, expires_delta: timedelta | None = None) -> str:
@@ -14,13 +14,13 @@ def create_access_token(subject: str | Any, expires_delta: timedelta | None = No
     if expires_delta:
         expire = now + expires_delta
     else:
-        expire = now + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = now + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     
     to_encode.update({"exp": expire, "iat": now})
     
     encoded_jwt = jwt.encode(
         to_encode, 
-        settings.SECRET_KEY, 
+        SECRET_KEY, 
         algorithm=settings.ALGORITHM
     )
     return encoded_jwt
