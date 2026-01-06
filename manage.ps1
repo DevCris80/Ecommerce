@@ -1,6 +1,6 @@
 param (
     [Parameter(Mandatory=$true)]
-    [ValidateSet("start", "stop", "clean", "migration", "update", "shell")]
+    [ValidateSet("start", "stop", "clean", "migration", "update", "shell", "reset")]
     [string]$action,
 
     [string]$m = "cambio_sin_nombre"
@@ -24,9 +24,16 @@ switch ($action) {
         docker-compose stop
     }
 
-    "clean" {
-        Write-Host "[LIMPIEZA] Bajando servicios y limpiando redes (Datos persisten)..." -ForegroundColor Red
+    "clean" { 
+        # Esto es lo que usas al terminar el día
+        Write-Host "[LIMPIEZA] Bajando servicios (Datos SE GUARDAN)..." -ForegroundColor Yellow
         docker-compose down
+    }
+
+    "reset" { 
+        # Esto es solo para emergencias o empezar de cero
+        Write-Host "[PELIGRO] Borrando todo, incluidos los datos de la DB..." -ForegroundColor Red
+        docker-compose down -v
     }
 
     "migration" {
