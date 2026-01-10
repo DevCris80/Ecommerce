@@ -2,40 +2,42 @@ import asyncio
 import os
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
+from dotenv import load_dotenv
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
-
-from dotenv import load_dotenv
-
-load_dotenv()
-
 from app.db.base import Base
-from app.db.models import User, Product, Order, OrderItem
 
 config = context.config
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# 2. Lógica de Conexión
-db_user = os.getenv("POSTGRES_USER", "admin")
-db_password = os.getenv("POSTGRES_PASSWORD", "admin123")
-db_host = os.getenv("POSTGRES_HOST", "localhost") 
-db_port = os.getenv("POSTGRES_PORT", "5432")
-db_name = os.getenv("POSTGRES_DB", "ecommerce_db")
 
-database_url = f"postgresql+asyncpg://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+def get_database_url() -> str:
+    load_dotenv()
 
-config.set_main_option("sqlalchemy.url", database_url)
+    db_user = os.getenv("POSTGRES_USER", "admin")
+    db_password = os.getenv("POSTGRES_PASSWORD", "admin123")
+    db_host = os.getenv("POSTGRES_HOST", "localhost")
+    db_port = os.getenv("POSTGRES_PORT", "5432")
+    db_name = os.getenv("POSTGRES_DB", "ecommerce_db")
+
+    return (
+        f"postgresql+asyncpg://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+    )
+
+
+config.set_main_option("sqlalchemy.url", get_database_url())
 
 target_metadata = Base.metadata
+
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode."""
     url = config.get_main_option("sqlalchemy.url")
+
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -47,11 +49,15 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
-def do_run_migrations(connection):
-    context.configure(connection=connection, target_metadata=target_metadata)
+def do_run_migrations(connection) -> None:
+    context.configure(
+        connection=connection,
+        target_metadata=target_metadata,
+    )
 
     with context.begin_transaction():
         context.run_migrations()
+
 
 async def run_async_migrations() -> None:
     connectable = async_engine_from_config(
@@ -63,14 +69,11 @@ async def run_async_migrations() -> None:
     async with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)
 
-    return await connectable.dispose()
+    await connectable.dispose()
+
 
 def run_migrations_online() -> None:
     """Run migrations in 'online' mode."""
-    
-    # Verifica que la URL sea la correcta antes de conectar
-    # print(f"Connecting to: {database_url}") # Descomenta para depurar si falla
-
     asyncio.run(run_async_migrations())
 
 

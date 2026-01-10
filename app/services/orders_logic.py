@@ -21,13 +21,13 @@ class OrderService:
         new_order = Order(
             total_amount=order_data.total_amount,
             status=order_data.status,
-            user_id=order_data.user_id
+            user_id=order_data.user_id,
         )
         self.db.add(new_order)
         await self.db.commit()
         await self.db.refresh(new_order)
         return new_order
-    
+
     async def delete_order(self, order_id: int) -> None:
         order = await self.get_order_by_id(order_id)
         self.db.delete(order)
